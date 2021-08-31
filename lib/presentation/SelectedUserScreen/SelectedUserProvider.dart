@@ -64,6 +64,7 @@ class SelectedUserProvider extends ChangeNotifier {
 
   void fetchdata() async {
     setloading(true);
+    userlist.clear();
     if (MemoryManagement.getuserlist() != null) {
       var sharedpreflist =
           await jsonDecode(MemoryManagement.getuserlist().toString());

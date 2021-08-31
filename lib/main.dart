@@ -23,9 +23,6 @@ void main() {
         ChangeNotifierProvider<AllUserListProvider>(
           create: (context) => AllUserListProvider(),
         ),
-        ChangeNotifierProvider<AllUserListProvider>(
-          create: (context) => AllUserListProvider(),
-        ),
         ChangeNotifierProvider<SelectedUserProvider>(
           create: (context) => SelectedUserProvider(),
         ),

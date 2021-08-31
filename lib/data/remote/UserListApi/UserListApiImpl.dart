@@ -9,16 +9,14 @@ class UserListApiImpl implements UserListApi {
   @override
   Future<dynamic> getuserlist(
       BuildContext context, int currentPage, int perpage) async {
-    Completer<dynamic> completer = new Completer<dynamic>();
+
     var response = await APIHandler.get(
         url: "${APIs.userlist}?since=$currentPage&per_page=$perpage",
         context: context);
     if (response is ApiError) {
-      completer.complete(response);
-      return completer.future;
+      return response;
     } else {
-      completer.complete(response);
-      return completer.future;
+      return response;
     }
   }
 }

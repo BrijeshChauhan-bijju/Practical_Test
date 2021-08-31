@@ -21,6 +21,7 @@ class AllUserListScreenState extends State<AllUserListScreen> {
   void initState() {
     super.initState();
     new Future.delayed(Duration(milliseconds: 100)).then((value) {
+      provider.currentPage=0;
       fetchdata(true);
     });
   }
@@ -101,7 +102,6 @@ class AllUserListScreenState extends State<AllUserListScreen> {
     if (provider.isdataloaded == false) {
       provider.getAllUserList((context),isfirst,(userlistdata) {
         _userlistmodel= userlistdata;
-        print("listlength=>,${_userlistmodel.length}");
       }, (error) {
         if(error.isNotEmpty)
         this.error = error;
