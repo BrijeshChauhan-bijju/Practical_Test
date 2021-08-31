@@ -21,6 +21,15 @@ class AllUserListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isdataloaded=false;
+
+  bool get isdataloaded=> _isdataloaded;
+
+  set isdataloaded (bool value){
+    _isdataloaded=value;
+    notifyListeners();
+  }
+
   bool _isloading = true;
 
   get isloading => _isloading;
@@ -33,8 +42,10 @@ class AllUserListProvider extends ChangeNotifier {
     var response = await _userListUseCase.perform(context);
 
     if (response is ApiError) {
+      isdataloaded=true;
       onFailure("Some thing went wrong");
     } else {
+      isdataloaded=false;
       List<UserListModel> checkeduserlist = [];
       if (MemoryManagement.getuserlist() != null) {
         print("address=>${MemoryManagement.getuserlist().toString()}");
@@ -50,7 +61,7 @@ class AllUserListProvider extends ChangeNotifier {
         UserListModel postEntity = UserListModel.fromJson(element);
         userlist.add(postEntity);
       });
-      if(checkeduserlist.isNotEmpty) {
+      if (checkeduserlist.isNotEmpty) {
         userlist = checkeduserlist;
       }
 
@@ -61,8 +72,8 @@ class AllUserListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setloading(bool value){
-    _isloading=value;
+  setloading(bool value) {
+    _isloading = value;
     notifyListeners();
   }
 
