@@ -40,10 +40,9 @@ class HomeScreenState extends State<HomeScreen> {
                 },
                 items: [
                   BottomNavigationBarItem(
-                    icon: Image.asset(
-                      "assets/shopping.png",
-                      height: 20,
-                      width: 20,
+                    icon: Icon(
+                      Icons.supervised_user_circle,
+                      size: 20,
                       color: provider.currentIndex == 0
                           ? getColorFromHex(AppColors.primaryColor)
                           : Colors.grey,
@@ -51,10 +50,9 @@ class HomeScreenState extends State<HomeScreen> {
                     label: "All User",
                   ),
                   BottomNavigationBarItem(
-                    icon: Image.asset(
-                      "assets/explore.png",
-                      height: 20,
-                      width: 20,
+                    icon: Icon(
+                      Icons.supervised_user_circle,
+                      size: 20,
                       color: provider.currentIndex == 1
                           ? getColorFromHex(AppColors.primaryColor)
                           : Colors.grey,

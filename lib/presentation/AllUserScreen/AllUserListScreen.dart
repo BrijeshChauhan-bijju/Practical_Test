@@ -15,13 +15,13 @@ class AllUserListScreen extends StatefulWidget {
 class AllUserListScreenState extends State<AllUserListScreen> {
   late AllUserListProvider provider;
   List<UserListModel> _userlistmodel = [];
-  int currentPage = 1;
+  String error = "";
 
   @override
   void initState() {
     super.initState();
     new Future.delayed(Duration(milliseconds: 100)).then((value) {
-      fetchdata(1);
+      fetchdata(true);
     });
   }
 
@@ -44,15 +44,14 @@ class AllUserListScreenState extends State<AllUserListScreen> {
   Widget builduserlist(List<dynamic> userlist) {
     if (_userlistmodel.isEmpty) {
       return Center(
-        child: Text("Some thing went wrong"),
+        child: Text(error),
       );
     } else {
       return NotificationListener<ScrollNotification>(
           onNotification: (ScrollNotification scroll) {
-            if (provider.isdataloaded == false &&
+            if (provider.isdataloaded == false && provider.isdataloading==false&&
                 scroll.metrics.pixels == scroll.metrics.maxScrollExtent) {
-              currentPage++;
-              fetchdata(currentPage);
+              fetchdata(false);
             }
             return true;
           },
@@ -63,37 +62,34 @@ class AllUserListScreenState extends State<AllUserListScreen> {
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    onLongPress: () {},
-                    child: Container(
-                      margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10000.0),
-                            child: getCatchenewtworkImage(
-                              _userlistmodel[index].avatarUrl!,
-                              40,
-                              40,
-                            ),
+                  return Container(
+                    margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10000.0),
+                          child: getCatchenewtworkImage(
+                            _userlistmodel[index].avatarUrl!,
+                            40,
+                            40,
                           ),
-                          SizedBox(
-                            width: 50,
-                          ),
-                          new Text(
-                            _userlistmodel[index].login!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Spacer(),
-                          Checkbox(
-                              value: _userlistmodel[index].ischecked ?? false,
-                              onChanged: (onChanged) {
-                                provider.setcheckbox(onChanged, index);
-                              })
-                        ],
-                      ),
+                        ),
+                        SizedBox(
+                          width: 50,
+                        ),
+                        new Text(
+                          _userlistmodel[index].login!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Spacer(),
+                        Checkbox(
+                            value: _userlistmodel[index].ischecked ?? false,
+                            onChanged: (onChanged) {
+                              provider.setcheckbox(onChanged, index);
+                            })
+                      ],
                     ),
                   );
                 }),
@@ -101,12 +97,16 @@ class AllUserListScreenState extends State<AllUserListScreen> {
     }
   }
 
-  void fetchdata(int currentPage) async {
+  void fetchdata(bool isfirst) async {
     if (provider.isdataloaded == false) {
-      provider.getAllUserList((context), (userlistdata) {
-        _userlistmodel.addAll(userlistdata);
+      provider.getAllUserList((context),isfirst,(userlistdata) {
+        _userlistmodel= userlistdata;
+        print("listlength=>,${_userlistmodel.length}");
       }, (error) {
-        print(error);
+        if(error.isNotEmpty)
+        this.error = error;
+        else
+          this.error = "No Data Found";
       });
     }
   }

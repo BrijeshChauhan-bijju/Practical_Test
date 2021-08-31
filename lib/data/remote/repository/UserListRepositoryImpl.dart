@@ -10,7 +10,7 @@ class UserListRepositoryImpl implements UserListRepository {
   }
 
   @override
-  Future<dynamic> getUserList(BuildContext context) {
-    return _userListApi.getuserlist(context);
+  Future<dynamic> getUserList(BuildContext context,int currentPage,int perpage) {
+    return _userListApi.getuserlist(context,currentPage,perpage);
   }
 }

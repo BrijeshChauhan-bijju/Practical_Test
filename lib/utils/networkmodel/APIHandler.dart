@@ -12,7 +12,6 @@ const Duration timeoutDuration = const Duration(seconds: 60);
 
 class APIHandler {
   static Map<String, String> defaultHeaders = {
-    // "Content-Type": "application/json",
     "Accept": "application/vnd.github.v3+json",
     'Accept-Encoding': '*/*'
   };
@@ -154,10 +153,10 @@ class APIHandler {
       print("messag ${e.response?.data}");
       print("messag ${e.response}");
 
-      if (e.response?.statusCode == 404) {
+      if (e.response?.statusCode == 403) {
         ApiError apiError = new ApiError(
           message: parseError(e.response!.data.toString()),
-          status: 404,
+          status: 403,
         );
         completer.complete(apiError);
       } else {

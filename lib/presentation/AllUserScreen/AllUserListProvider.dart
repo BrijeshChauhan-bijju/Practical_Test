@@ -21,12 +21,38 @@ class AllUserListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _isdataloaded=false;
+  int _currentPage = 0;
 
-  bool get isdataloaded=> _isdataloaded;
+  int get currentPage => _currentPage;
 
-  set isdataloaded (bool value){
-    _isdataloaded=value;
+  set currentPage(int value) {
+    _currentPage = value;
+    notifyListeners();
+  }
+
+  bool _isdataloading= false;
+  bool get isdataloading => _isdataloading;
+
+  set isdataloading(bool value){
+    _isdataloading=value;
+    notifyListeners();
+  }
+
+  int _perpage = 10;
+
+  int get perpage => _perpage;
+
+  set perpage(int value) {
+    _currentPage = value;
+    notifyListeners();
+  }
+
+  bool _isdataloaded = false;
+
+  bool get isdataloaded => _isdataloaded;
+
+  set isdataloaded(bool value) {
+    _isdataloaded = value;
     notifyListeners();
   }
 
@@ -36,39 +62,57 @@ class AllUserListProvider extends ChangeNotifier {
 
   void getAllUserList(
       BuildContext context,
+      bool isfirst,
       Function(List<UserListModel> _userlist) onSuccess,
       Function(String error) onFailure) async {
-    setloading(true);
-    var response = await _userListUseCase.perform(context);
+    if (isfirst) {
+      setloading(true);
+      userlist.clear();
+    }
+    isdataloading=true;
+    var response =
+        await _userListUseCase.perform(context, currentPage, perpage);
 
     if (response is ApiError) {
-      isdataloaded=true;
-      onFailure("Some thing went wrong");
+      isdataloading=false;
+      onFailure(response.message.toString());
     } else {
-      isdataloaded=false;
+
       List<UserListModel> checkeduserlist = [];
       if (MemoryManagement.getuserlist() != null) {
-        print("address=>${MemoryManagement.getuserlist().toString()}");
         var sharedpreflist =
             await jsonDecode(MemoryManagement.getuserlist().toString());
-        // List<UserListModel> _alluserlist = [];
         sharedpreflist.forEach((element) {
           UserListModel postEntity = UserListModel.fromJson(element);
           checkeduserlist.add(postEntity);
         });
       }
+      List<UserListModel> responselist = [];
       response.forEach((element) {
         UserListModel postEntity = UserListModel.fromJson(element);
-        userlist.add(postEntity);
+        responselist.add(postEntity);
       });
-      if (checkeduserlist.isNotEmpty) {
-        userlist = checkeduserlist;
+      if (responselist.length < perpage) {
+        isdataloaded = true;
       }
+      userlist.addAll(responselist);
 
+      currentPage = userlist[userlist.length - 1].id!;
+      if (checkeduserlist.isNotEmpty) {
+        for (int i = 0; i < userlist.length; i++) {
+          for (int j = 0; j < checkeduserlist.length; j++) {
+            if (userlist[i].id == checkeduserlist[j].id) {
+              userlist[i].ischecked = checkeduserlist[j].ischecked;
+            }
+          }
+        }
+      }
+      isdataloading=false;
       onSuccess(userlist);
     }
-
-    setloading(false);
+    if (isfirst) {
+      setloading(false);
+    }
     notifyListeners();
   }
 
@@ -77,9 +121,28 @@ class AllUserListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setcheckbox(bool? onChanged, int index) {
+  void setcheckbox(bool? onChanged, int index) async {
     userlist[index].ischecked = onChanged;
-    var userlistvalue = json.encode(userlist);
+
+    List<UserListModel> _checkeduserlist = [];
+
+    if (MemoryManagement.getuserlist() != null) {
+      var sharedpreflist =
+          await jsonDecode(MemoryManagement.getuserlist().toString());
+      sharedpreflist.forEach((element) {
+        UserListModel postEntity = UserListModel.fromJson(element);
+        _checkeduserlist.add(postEntity);
+      });
+    }
+
+    if (onChanged == true) {
+      _checkeduserlist.add(userlist[index]);
+    } else {
+      _checkeduserlist
+          .removeWhere((element) => element.id == userlist[index].id);
+    }
+
+    var userlistvalue = json.encode(_checkeduserlist);
     MemoryManagement.setuserlist(userlist: userlistvalue);
     notifyListeners();
   }
