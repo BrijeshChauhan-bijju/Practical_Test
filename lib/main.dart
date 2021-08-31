@@ -40,12 +40,6 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   MyAppState();
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {

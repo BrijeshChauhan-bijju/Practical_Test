@@ -12,7 +12,7 @@ import 'package:testproject/utils/UniversalClass.dart';
 import 'package:testproject/utils/memory_management.dart';
 
 class SelectedUserScreen extends StatefulWidget {
-  SelectedUserScreen();
+  SelectedUserScreen({required Key key}) : super(key: key);
 
   @override
   SelectedUserScreenState createState() => SelectedUserScreenState();
@@ -28,6 +28,13 @@ class SelectedUserScreenState extends State<SelectedUserScreen> {
     new Future.delayed(Duration(milliseconds: 300)).then((value) {
       provider.fetchdata();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    provider = Provider.of<SelectedUserProvider>(context);
   }
 
   @override

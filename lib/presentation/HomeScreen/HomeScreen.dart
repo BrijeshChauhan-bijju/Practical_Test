@@ -15,6 +15,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
+  GlobalKey<AllUserListScreenState> _alluserscreen =
+      new GlobalKey<AllUserListScreenState>();
+  GlobalKey<SelectedUserScreenState> _selecteduserscreen =
+      new GlobalKey<SelectedUserScreenState>();
+  // late BottomNavigationBarProvider provider;
 
   @override
   void initState() {
@@ -24,56 +29,78 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var provider = Provider.of<BottomNavigationBarProvider>(context);
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    return Consumer<BottomNavigationBarProvider>(builder: (context, model, child) {
+      return AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
-        child:  SafeArea(
-            child: Scaffold(
-              body: getPage(provider.currentIndex),
-              bottomNavigationBar: BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                currentIndex: provider.currentIndex,
-                unselectedItemColor: Colors.black,
-                selectedItemColor: getColorFromHex(AppColors.primaryColor),
-                onTap: (index) {
-                  provider.currentIndex = index;
-                },
-                items: [
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.supervised_user_circle,
-                      size: 20,
-                      color: provider.currentIndex == 0
-                          ? getColorFromHex(AppColors.primaryColor)
-                          : Colors.grey,
-                    ),
-                    label: "All User",
+        child: SafeArea(
+          child: Scaffold(
+            body: IndexedStack(
+              index: model.currentIndex,
+              children: [
+                AllUserListScreen(
+                  key: _alluserscreen,
+                ),
+                SelectedUserScreen(key: _selecteduserscreen)
+              ],
+            ),
+            bottomNavigationBar: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              currentIndex: model.currentIndex,
+              unselectedItemColor: Colors.black,
+              selectedItemColor: getColorFromHex(AppColors.primaryColor),
+              onTap: (index) {
+                if (index == 0) {
+                  print(index);
+                  _alluserscreen.currentState?.provider.updateCheckList();
+                } else {
+                  _selecteduserscreen.currentState?.provider.fetchdata();
+                }
+                model.currentIndex = index;
+              },
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.supervised_user_circle,
+                    size: 20,
+                    color: model.currentIndex == 0
+                        ? getColorFromHex(AppColors.primaryColor)
+                        : Colors.grey,
                   ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.supervised_user_circle,
-                      size: 20,
-                      color: provider.currentIndex == 1
-                          ? getColorFromHex(AppColors.primaryColor)
-                          : Colors.grey,
-                    ),
-                    label: "Selected User",
+                  label: "All User",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.supervised_user_circle,
+                    size: 20,
+                    color: model.currentIndex == 1
+                        ? getColorFromHex(AppColors.primaryColor)
+                        : Colors.grey,
                   ),
-                ],
-              ),
+                  label: "Selected User",
+                ),
+              ],
             ),
           ),
-        );
+        ),
+      );
+    });
   }
 
-  Widget getPage(int index) {
-    switch (index) {
-      case 0:
-        return AllUserListScreen();
-      case 1:
-        return SelectedUserScreen();
-      default:
-        return AllUserListScreen();
-    }
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    // provider = Provider.of<BottomNavigationBarProvider>(context);
   }
+//
+// Widget getPage(int index) {
+//   switch (index) {
+//     case 0:
+//       return AllUserListScreen();
+//     case 1:
+//       return SelectedUserScreen();
+//     default:
+//       return AllUserListScreen();
+//   }
+// }
 }

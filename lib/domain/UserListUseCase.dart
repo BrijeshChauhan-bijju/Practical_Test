@@ -9,7 +9,7 @@ class UserListUseCase extends BaseUseCase<dynamic> {
   }
 
   @override
-  Future<dynamic> perform([context,currentPage,perpage]) {
-    return _userListRepository.getUserList(context,currentPage,perpage);
+  Future<dynamic> perform([currentPage,perpage]) {
+    return _userListRepository.getUserList(currentPage,perpage);
   }
 }

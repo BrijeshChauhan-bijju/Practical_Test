@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:testproject/data/model/user_list_model.dart';
 import 'package:testproject/presentation/AllUserScreen/AllUserListProvider.dart';
+import 'package:testproject/presentation/SelectedUserScreen/SelectedUserScreen.dart';
 import 'package:testproject/utils/UniversalClass.dart';
 
 class AllUserListScreen extends StatefulWidget {
-  AllUserListScreen();
+  AllUserListScreen({required Key key}) : super(key: key);
 
   @override
   AllUserListScreenState createState() => AllUserListScreenState();
@@ -21,14 +22,20 @@ class AllUserListScreenState extends State<AllUserListScreen> {
   void initState() {
     super.initState();
     new Future.delayed(Duration(milliseconds: 100)).then((value) {
-      provider.currentPage=0;
-      fetchdata(true);
+      provider.currentPage = 0;
+      fetchData(true);
     });
   }
 
   @override
-  Widget build(BuildContext context) {
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
     provider = Provider.of<AllUserListProvider>(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -50,9 +57,10 @@ class AllUserListScreenState extends State<AllUserListScreen> {
     } else {
       return NotificationListener<ScrollNotification>(
           onNotification: (ScrollNotification scroll) {
-            if (provider.isdataloaded == false && provider.isdataloading==false&&
+            if (provider.isdataloaded == false &&
+                provider.isdataloading == false &&
                 scroll.metrics.pixels == scroll.metrics.maxScrollExtent) {
-              fetchdata(false);
+              fetchData(false);
             }
             return true;
           },
@@ -88,7 +96,7 @@ class AllUserListScreenState extends State<AllUserListScreen> {
                         Checkbox(
                             value: _userlistmodel[index].ischecked ?? false,
                             onChanged: (onChanged) {
-                              provider.setcheckbox(onChanged, index);
+                              provider.setCheckBox(onChanged, index);
                             })
                       ],
                     ),
@@ -98,13 +106,13 @@ class AllUserListScreenState extends State<AllUserListScreen> {
     }
   }
 
-  void fetchdata(bool isfirst) async {
+  void fetchData(bool isfirst) async {
     if (provider.isdataloaded == false) {
-      provider.getAllUserList((context),isfirst,(userlistdata) {
-        _userlistmodel= userlistdata;
+      provider.getAllUserList(isfirst, (userlistdata) {
+        _userlistmodel = userlistdata;
       }, (error) {
-        if(error.isNotEmpty)
-        this.error = error;
+        if (error.isNotEmpty)
+          this.error = error;
         else
           this.error = "No Data Found";
       });

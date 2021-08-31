@@ -30,11 +30,12 @@ class AllUserListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _isdataloading= false;
+  bool _isdataloading = false;
+
   bool get isdataloading => _isdataloading;
 
-  set isdataloading(bool value){
-    _isdataloading=value;
+  set isdataloading(bool value) {
+    _isdataloading = value;
     notifyListeners();
   }
 
@@ -61,23 +62,20 @@ class AllUserListProvider extends ChangeNotifier {
   get isloading => _isloading;
 
   void getAllUserList(
-      BuildContext context,
       bool isfirst,
       Function(List<UserListModel> _userlist) onSuccess,
       Function(String error) onFailure) async {
     if (isfirst) {
-      setloading(true);
+      setLoading(true);
       userlist.clear();
     }
-    isdataloading=true;
-    var response =
-        await _userListUseCase.perform(context, currentPage, perpage);
+    isdataloading = true;
+    var response = await _userListUseCase.perform(currentPage, perpage);
 
     if (response is ApiError) {
-      isdataloading=false;
+      isdataloading = false;
       onFailure(response.message.toString());
     } else {
-
       List<UserListModel> checkeduserlist = [];
       if (MemoryManagement.getuserlist() != null) {
         var sharedpreflist =
@@ -107,21 +105,21 @@ class AllUserListProvider extends ChangeNotifier {
           }
         }
       }
-      isdataloading=false;
+      isdataloading = false;
       onSuccess(userlist);
     }
     if (isfirst) {
-      setloading(false);
+      setLoading(false);
     }
     notifyListeners();
   }
 
-  setloading(bool value) {
+  setLoading(bool value) {
     _isloading = value;
     notifyListeners();
   }
 
-  void setcheckbox(bool? onChanged, int index) async {
+  void setCheckBox(bool? onChanged, int index) async {
     userlist[index].ischecked = onChanged;
 
     List<UserListModel> _checkeduserlist = [];
@@ -144,6 +142,33 @@ class AllUserListProvider extends ChangeNotifier {
 
     var userlistvalue = json.encode(_checkeduserlist);
     MemoryManagement.setuserlist(userlist: userlistvalue);
+    notifyListeners();
+  }
+
+  void updateCheckList() async {
+    print("1=>");
+    List<UserListModel> checkeduserlist = [];
+    if (MemoryManagement.getuserlist() != null) {
+      print("4=>");
+      var sharedpreflist =
+          await jsonDecode(MemoryManagement.getuserlist().toString());
+      sharedpreflist.forEach((element) {
+        UserListModel postEntity = UserListModel.fromJson(element);
+        checkeduserlist.add(postEntity);
+      });
+    }
+    if (checkeduserlist.isNotEmpty) {
+      for (int i = 0; i < userlist.length; i++) {
+        for (int j = 0; j < checkeduserlist.length; j++) {
+          if (userlist[i].id == checkeduserlist[j].id) {
+            userlist[i].ischecked = checkeduserlist[j].ischecked;
+            break;
+          } else {
+            userlist[i].ischecked = false;
+          }
+        }
+      }
+    }
     notifyListeners();
   }
 }

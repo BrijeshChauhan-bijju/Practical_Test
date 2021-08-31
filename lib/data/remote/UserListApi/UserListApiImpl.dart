@@ -7,16 +7,12 @@ import 'package:testproject/utils/networkmodel/api_error.dart';
 
 class UserListApiImpl implements UserListApi {
   @override
-  Future<dynamic> getuserlist(
-      BuildContext context, int currentPage, int perpage) async {
+  Future<dynamic> getuserlist(int currentPage, int perpage) async {
 
     var response = await APIHandler.get(
-        url: "${APIs.userlist}?since=$currentPage&per_page=$perpage",
-        context: context);
-    if (response is ApiError) {
+        url: "${APIs.userlist}?since=$currentPage&per_page=$perpage",);
+
       return response;
-    } else {
-      return response;
-    }
+
   }
 }
