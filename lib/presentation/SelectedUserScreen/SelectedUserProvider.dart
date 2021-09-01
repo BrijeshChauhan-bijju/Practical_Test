@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:testproject/data/model/user_list_model.dart';
-import 'package:testproject/utils/memory_management.dart';
+import 'package:testproject/datasource/memory_management.dart';
 
 class SelectedUserProvider extends ChangeNotifier {
   List<UserListModel> _userlist = [];

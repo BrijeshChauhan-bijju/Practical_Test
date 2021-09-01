@@ -9,7 +9,7 @@ import 'package:testproject/presentation/AllUserScreen/AllUserListProvider.dart'
 import 'package:testproject/presentation/SelectedUserScreen/SelectedUserProvider.dart';
 import 'package:testproject/utils/AppColors.dart';
 import 'package:testproject/utils/UniversalClass.dart';
-import 'package:testproject/utils/memory_management.dart';
+import 'package:testproject/datasource/memory_management.dart';
 
 class SelectedUserScreen extends StatefulWidget {
   SelectedUserScreen({required Key key}) : super(key: key);

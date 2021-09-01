@@ -5,7 +5,7 @@ import 'package:testproject/data/model/user_list_model.dart';
 import 'package:testproject/data/remote/UserListApi/UserListApiImpl.dart';
 import 'package:testproject/data/remote/repository/UserListRepositoryImpl.dart';
 import 'package:testproject/domain/UserListUseCase.dart';
-import 'package:testproject/utils/memory_management.dart';
+import 'package:testproject/datasource/memory_management.dart';
 import 'package:testproject/utils/networkmodel/api_error.dart';
 
 class AllUserListProvider extends ChangeNotifier {
@@ -27,6 +27,15 @@ class AllUserListProvider extends ChangeNotifier {
 
   set currentPage(int value) {
     _currentPage = value;
+    notifyListeners();
+  }
+
+  String _error = "";
+
+  String get error => _error;
+
+  set error(String value) {
+    _error = value;
     notifyListeners();
   }
 
@@ -59,7 +68,12 @@ class AllUserListProvider extends ChangeNotifier {
 
   bool _isloading = true;
 
-  get isloading => _isloading;
+  bool get isloading => _isloading;
+
+  set isloading(bool value) {
+    _isloading = value;
+    notifyListeners();
+  }
 
   void getAllUserList(
       bool isfirst,
@@ -70,44 +84,35 @@ class AllUserListProvider extends ChangeNotifier {
       userlist.clear();
     }
     isdataloading = true;
-    var response = await _userListUseCase.perform(currentPage, perpage);
-
-    if (response is ApiError) {
-      isdataloading = false;
-      onFailure(response.message.toString());
-    } else {
-      List<UserListModel> checkeduserlist = [];
-      if (MemoryManagement.getuserlist() != null) {
-        var sharedpreflist =
-            await jsonDecode(MemoryManagement.getuserlist().toString());
-        sharedpreflist.forEach((element) {
-          UserListModel postEntity = UserListModel.fromJson(element);
-          checkeduserlist.add(postEntity);
-        });
-      }
-      List<UserListModel> responselist = [];
-      response.forEach((element) {
+    List<UserListModel> responselist =
+        await _userListUseCase.perform(currentPage, perpage);
+    List<UserListModel> checkeduserlist = [];
+    if (MemoryManagement.getuserlist() != null) {
+      var sharedpreflist =
+          await jsonDecode(MemoryManagement.getuserlist().toString());
+      sharedpreflist.forEach((element) {
         UserListModel postEntity = UserListModel.fromJson(element);
-        responselist.add(postEntity);
+        checkeduserlist.add(postEntity);
       });
-      if (responselist.length < perpage) {
-        isdataloaded = true;
-      }
-      userlist.addAll(responselist);
+    }
+    if (responselist.length < perpage) {
+      isdataloaded = true;
+    }
+    userlist.addAll(responselist);
 
-      currentPage = userlist[userlist.length - 1].id!;
-      if (checkeduserlist.isNotEmpty) {
-        for (int i = 0; i < userlist.length; i++) {
-          for (int j = 0; j < checkeduserlist.length; j++) {
-            if (userlist[i].id == checkeduserlist[j].id) {
-              userlist[i].ischecked = checkeduserlist[j].ischecked;
-            }
+    currentPage = userlist[userlist.length - 1].id!;
+    if (checkeduserlist.isNotEmpty) {
+      for (int i = 0; i < userlist.length; i++) {
+        for (int j = 0; j < checkeduserlist.length; j++) {
+          if (userlist[i].id == checkeduserlist[j].id) {
+            userlist[i].ischecked = checkeduserlist[j].ischecked;
           }
         }
       }
-      isdataloading = false;
-      onSuccess(userlist);
     }
+    isdataloading = false;
+    onSuccess(userlist);
+
     if (isfirst) {
       setLoading(false);
     }

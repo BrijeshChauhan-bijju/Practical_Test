@@ -5,7 +5,7 @@ import 'package:testproject/presentation/AllUserScreen/AllUserListProvider.dart'
 import 'package:testproject/presentation/HomeScreen/BottomNavigatonBarProvider.dart';
 import 'package:testproject/presentation/HomeScreen/HomeScreen.dart';
 import 'package:testproject/presentation/SelectedUserScreen/SelectedUserProvider.dart';
-import 'package:testproject/utils/memory_management.dart';
+import 'package:testproject/datasource/memory_management.dart';
 
 void main() {
   ///for check life cycle

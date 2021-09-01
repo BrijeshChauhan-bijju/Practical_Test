@@ -34,7 +34,7 @@ class APIHandler {
   }
 
   // GET method
-  static Future<dynamic> get({
+  static Future<Response> get({
     required String url,
     dynamic requestBody,
     Map<String, String> additionalHeaders = const {},
@@ -74,18 +74,18 @@ class APIHandler {
   }
 
   // Generic HTTP method
-  static Future<dynamic> _hitApi({
+  static Future<Response> _hitApi({
     required MethodType methodType,
     required String url,
     dynamic requestBody,
     Map<String, String> additionalHeaders = const {},
   }) async {
-    Completer<dynamic> completer = new Completer<dynamic>();
+    Completer<Response> completer = new Completer<Response>();
     try {
       Map<String, String> headers = {};
       headers.addAll(defaultHeaders);
 
-      var response;
+      Response response;
 
       switch (methodType) {
         case MethodType.POST:
@@ -135,9 +135,9 @@ class APIHandler {
       print("url: ${url}");
       print("api handler requestbody: $requestBody");
       print("api handler responsebody: ${json.encode(response.data)}");
-      print("api handler response code: ${response?.statusCode}");
+      print("api handler response code: ${response.statusCode}");
 
-      completer.complete(response.data);
+      completer.complete(response);
     } on DioError catch (e) {
       print("dio cath ${e.message}");
       print("error ${e.response?.statusCode}");
@@ -145,22 +145,27 @@ class APIHandler {
       print("messag ${e.response}");
 
       if (e.response?.statusCode == 403) {
-        ApiError apiError = new ApiError(
-          message: parseError(e.response!.data.toString()),
-          status: 403,
-        );
-        completer.complete(apiError);
+        // ApiError apiError = new ApiError(
+        //   message: parseError(e.response!.data.toString()),
+        //   status: 403,
+        // );
+        completer.complete(e.response);
       } else {
-        ApiError apiError = new ApiError(
-            message: e.response?.data ?? "",
-            status: e.response?.statusCode ?? 0);
-        completer.complete(apiError);
+        // ApiError apiError = new ApiError(
+        //     message: e.response?.data ?? "",
+        //     status: e.response?.statusCode ?? 0);
+        completer.complete(e.response);
       }
     } catch (e) {
       print("errror ${e.toString()}");
-      ApiError apiError =
-          new ApiError(message: Messages.genericError, status: 500);
-      completer.complete(apiError);
+      // ApiError apiError =
+      //     new ApiError(message: Messages.genericError, status: 500);
+      Response response = Response(
+          requestOptions: requestBody,
+          data: null,
+          statusMessage: Messages.genericError,
+          statusCode: 500);
+      completer.complete(response);
     }
     return completer.future;
   }

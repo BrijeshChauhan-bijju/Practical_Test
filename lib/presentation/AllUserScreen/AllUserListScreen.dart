@@ -16,7 +16,6 @@ class AllUserListScreen extends StatefulWidget {
 class AllUserListScreenState extends State<AllUserListScreen> {
   late AllUserListProvider provider;
   List<UserListModel> _userlistmodel = [];
-  String error = "";
 
   @override
   void initState() {
@@ -52,7 +51,7 @@ class AllUserListScreenState extends State<AllUserListScreen> {
   Widget builduserlist(List<dynamic> userlist) {
     if (_userlistmodel.isEmpty) {
       return Center(
-        child: Text(error),
+        child: Text(provider.error),
       );
     } else {
       return NotificationListener<ScrollNotification>(
@@ -107,15 +106,22 @@ class AllUserListScreenState extends State<AllUserListScreen> {
   }
 
   void fetchData(bool isfirst) async {
-    if (provider.isdataloaded == false) {
-      provider.getAllUserList(isfirst, (userlistdata) {
-        _userlistmodel = userlistdata;
-      }, (error) {
-        if (error.isNotEmpty)
-          this.error = error;
-        else
-          this.error = "No Data Found";
-      });
+    var hasinternet = await hasInternetConnection();
+
+    if (hasinternet) {
+      if (provider.isdataloaded == false) {
+        provider.getAllUserList(isfirst, (userlistdata) {
+          _userlistmodel = userlistdata;
+        }, (error) {
+          if (error.isNotEmpty)
+            provider.error = error;
+          else
+            provider.error = "No Data Found";
+        });
+      }
+    }else{
+      provider.isloading=false;
+      provider.error = "Please connect to internet";
     }
   }
 }
