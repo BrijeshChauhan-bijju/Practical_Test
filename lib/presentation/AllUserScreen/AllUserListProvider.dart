@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:testproject/data/model/user_list_model.dart';
 import 'package:testproject/data/remote/UserListApi/UserListApiImpl.dart';
 import 'package:testproject/data/remote/repository/UserListRepositoryImpl.dart';
+import 'package:testproject/domain/SetCheckBoxUseCase.dart';
+import 'package:testproject/domain/UpdateListUseCase.dart';
 import 'package:testproject/domain/UserListUseCase.dart';
 import 'package:testproject/datasource/memory_management.dart';
 import 'package:testproject/utils/networkmodel/api_error.dart';
@@ -11,6 +13,12 @@ import 'package:testproject/utils/networkmodel/api_error.dart';
 class AllUserListProvider extends ChangeNotifier {
   UserListUseCase _userListUseCase =
       UserListUseCase(UserListRepositoryImpl(UserListApiImpl()));
+
+  SetCheckBoxUseCase _setCheckBoxUseCase =
+      SetCheckBoxUseCase(UserListRepositoryImpl(UserListApiImpl()));
+
+  UpdateListUseCase _updateListUseCase =
+      UpdateListUseCase(UserListRepositoryImpl(UserListApiImpl()));
 
   List<UserListModel> _userlist = [];
 
@@ -86,30 +94,14 @@ class AllUserListProvider extends ChangeNotifier {
     isdataloading = true;
     List<UserListModel> responselist =
         await _userListUseCase.perform(currentPage, perpage);
-    List<UserListModel> checkeduserlist = [];
-    if (MemoryManagement.getuserlist() != null) {
-      var sharedpreflist =
-          await jsonDecode(MemoryManagement.getuserlist().toString());
-      sharedpreflist.forEach((element) {
-        UserListModel postEntity = UserListModel.fromJson(element);
-        checkeduserlist.add(postEntity);
-      });
-    }
+
     if (responselist.length < perpage) {
       isdataloaded = true;
     }
     userlist.addAll(responselist);
 
     currentPage = userlist[userlist.length - 1].id!;
-    if (checkeduserlist.isNotEmpty) {
-      for (int i = 0; i < userlist.length; i++) {
-        for (int j = 0; j < checkeduserlist.length; j++) {
-          if (userlist[i].id == checkeduserlist[j].id) {
-            userlist[i].ischecked = checkeduserlist[j].ischecked;
-          }
-        }
-      }
-    }
+
     isdataloading = false;
     onSuccess(userlist);
 
@@ -126,58 +118,14 @@ class AllUserListProvider extends ChangeNotifier {
 
   void setCheckBox(bool? onChanged, int index) async {
     userlist[index].ischecked = onChanged;
-
-    List<UserListModel> _checkeduserlist = [];
-
-    if (MemoryManagement.getuserlist() != null) {
-      var sharedpreflist =
-          await jsonDecode(MemoryManagement.getuserlist().toString());
-      sharedpreflist.forEach((element) {
-        UserListModel postEntity = UserListModel.fromJson(element);
-        _checkeduserlist.add(postEntity);
-      });
-    }
-
-    if (onChanged == true) {
-      _checkeduserlist.add(userlist[index]);
-    } else {
-      _checkeduserlist
-          .removeWhere((element) => element.id == userlist[index].id);
-    }
-
-    var userlistvalue = json.encode(_checkeduserlist);
-    MemoryManagement.setuserlist(userlist: userlistvalue);
+    // List<UserListModel> responselist =
+    await _setCheckBoxUseCase.perform(onChanged, userlist, index);
     notifyListeners();
   }
 
   void updateCheckList() async {
     print("1=>");
-    List<UserListModel> checkeduserlist = [];
-    if (MemoryManagement.getuserlist() != null) {
-      print("4=>");
-      var sharedpreflist =
-          await jsonDecode(MemoryManagement.getuserlist().toString());
-      sharedpreflist.forEach((element) {
-        UserListModel postEntity = UserListModel.fromJson(element);
-        checkeduserlist.add(postEntity);
-      });
-    }
-    if (checkeduserlist.isNotEmpty) {
-      for (int i = 0; i < userlist.length; i++) {
-        for (int j = 0; j < checkeduserlist.length; j++) {
-          if (userlist[i].id == checkeduserlist[j].id) {
-            userlist[i].ischecked = checkeduserlist[j].ischecked;
-            break;
-          } else {
-            userlist[i].ischecked = false;
-          }
-        }
-      }
-    } else {
-      for (int i = 0; i < userlist.length; i++) {
-        userlist[i].ischecked = false;
-      }
-    }
+    _updateListUseCase.perform(userlist);
     notifyListeners();
   }
 }

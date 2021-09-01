@@ -32,7 +32,6 @@ class SelectedUserScreenState extends State<SelectedUserScreen> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     provider = Provider.of<SelectedUserProvider>(context);
   }
