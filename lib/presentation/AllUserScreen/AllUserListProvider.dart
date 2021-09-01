@@ -168,6 +168,10 @@ class AllUserListProvider extends ChangeNotifier {
           }
         }
       }
+    } else {
+      for (int i = 0; i < userlist.length; i++) {
+        userlist[i].ischecked = false;
+      }
     }
     notifyListeners();
   }
