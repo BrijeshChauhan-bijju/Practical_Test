@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -23,4 +25,19 @@ getCatchenewtworkImage(String url, double _height, double _width) {
         CircularProgressIndicator(value: downloadProgress.progress),
     errorWidget: (context, url, error) => Icon(Icons.error),
   );
+}
+
+// Checks Internet connection
+Future<bool> hasInternetConnection() async {
+  try {
+    final result = await InternetAddress.lookup('google.com')
+        .timeout(const Duration(seconds: 5));
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (_) {
+    return false;
+  }
 }

@@ -1,15 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testproject/data/model/user_list_model.dart';
-import 'package:testproject/presentation/AllUserScreen/AllUserListProvider.dart';
-import 'package:testproject/presentation/SelectedUserScreen/SelectedUserProvider.dart';
-import 'package:testproject/utils/AppColors.dart';
+import 'package:testproject/presentation/SelectedUserScreen/selecteduser_viewmodel.dart';
 import 'package:testproject/utils/UniversalClass.dart';
-import 'package:testproject/utils/memory_management.dart';
+import 'package:testproject/datasource/local/memory_management.dart';
 
 class SelectedUserScreen extends StatefulWidget {
   SelectedUserScreen({required Key key}) : super(key: key);
@@ -19,37 +14,37 @@ class SelectedUserScreen extends StatefulWidget {
 }
 
 class SelectedUserScreenState extends State<SelectedUserScreen> {
-  late SelectedUserProvider provider;
-
-
-  @override
-  void initState() {
-    super.initState();
-    new Future.delayed(Duration(milliseconds: 300)).then((value) {
-      provider.fetchdata();
-    });
-  }
+  late SelectedUserViewModel provider;
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    provider = Provider.of<SelectedUserProvider>(context);
+    provider = SelectedUserViewModel(
+        Provider.of(context), Provider.of(context), Provider.of(context));
+    provider.fetchdata();
   }
 
   @override
   Widget build(BuildContext context) {
-    provider = Provider.of<SelectedUserProvider>(context);
-    return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text("Selected Users List"),
-        ),
-        body: provider.isloading
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : builduserlist());
+    // provider = Provider.of<SelectedUserViewModel>(context);
+
+    return ChangeNotifierProvider<SelectedUserViewModel>(
+      create: (_) => provider,
+      child: Consumer<SelectedUserViewModel>(
+        builder: (context, model, child) {
+          return Scaffold(
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                title: Text("Selected Users List"),
+              ),
+              body: provider.isloading
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : builduserlist());
+        },
+      ),
+    );
   }
 
   Widget builduserlist() {
@@ -70,7 +65,8 @@ class SelectedUserScreenState extends State<SelectedUserScreen> {
               Text("Deselect All")
             ],
           ),
-          Expanded(child:Container(
+          Expanded(
+              child: Container(
                   child: ListView.builder(
                       itemCount: provider.userlist.length,
                       shrinkWrap: true,
@@ -78,7 +74,7 @@ class SelectedUserScreenState extends State<SelectedUserScreen> {
                       itemBuilder: (BuildContext context, int index) {
                         return Container(
                           margin:
-                          EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                              EdgeInsets.only(left: 20, right: 20, bottom: 20),
                           width: MediaQuery.of(context).size.width * 0.8,
                           child: Row(
                             children: [

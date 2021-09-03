@@ -1,4 +1,4 @@
-class UserListModel {
+class UserEntity {
   String? login;
   int? id;
   String? nodeId;
@@ -19,7 +19,7 @@ class UserListModel {
   bool? siteAdmin;
   bool? ischecked;
 
-  UserListModel({
+  UserEntity({
       this.login, 
       this.id, 
       this.nodeId, 
@@ -37,10 +37,11 @@ class UserListModel {
       this.eventsUrl, 
       this.receivedEventsUrl, 
       this.type, 
+      this.siteAdmin,
       this.ischecked,
-      this.siteAdmin});
+  });
 
-  UserListModel.fromJson(dynamic json) {
+  UserEntity.fromJson(dynamic json) {
     login = json['login'];
     id = json['id'];
     nodeId = json['node_id'];
