@@ -1,13 +1,9 @@
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testproject/utils/SharedPrefsKeys.dart';
+import 'package:testproject/utils/sharedprefs_keys.dart';
 
 class MemoryManagement {
   static late SharedPreferences prefs;
-
-  MemoryManagement() {
-    init();
-  }
 
   static Future<bool> init() async {
     prefs = await SharedPreferences.getInstance();

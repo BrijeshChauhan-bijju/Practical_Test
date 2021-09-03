@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:testproject/domain/usecase/SetCheckBoxUseCase.dart';
-import 'package:testproject/domain/usecase/UpdateListUseCase.dart';
-import 'package:testproject/domain/usecase/UserListUseCase.dart';
+import 'package:testproject/domain/usecase/setcheckbox_usecase.dart';
+import 'package:testproject/domain/usecase/updatelist_usecase.dart';
+import 'package:testproject/domain/usecase/userlist_usecase.dart';
 import 'package:testproject/presentation/model/user_item.dart';
+import 'package:testproject/utils/universalclass.dart';
 
 class AllUserViewModel extends ChangeNotifier {
-  UserListUseCase _userListUseCase/* =
-      UserListUseCase(UserListRepositoryImpl(UserListApiImpl()))*/;
+  UserListUseCase _userListUseCase;
 
-  SetCheckBoxUseCase _setCheckBoxUseCase/* =
-      SetCheckBoxUseCase(UserListRepositoryImpl(UserListApiImpl()))*/;
+  SetCheckBoxUseCase _setCheckBoxUseCase;
 
-  UpdateListUseCase _updateListUseCase /*=
-      UpdateListUseCase(UserListRepositoryImpl(UserListApiImpl()))*/;
+  UpdateListUseCase _updateListUseCase;
 
-  AllUserViewModel(this._userListUseCase,this._setCheckBoxUseCase,this._updateListUseCase);
-
+  AllUserViewModel(
+      this._userListUseCase, this._setCheckBoxUseCase, this._updateListUseCase);
 
   List<UserItem> _userlist = [];
 
@@ -71,7 +69,7 @@ class AllUserViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _isloading = true;
+  bool _isloading = false;
 
   bool get isloading => _isloading;
 
@@ -81,40 +79,43 @@ class AllUserViewModel extends ChangeNotifier {
   }
 
   void getAllUserList(
-      bool isfirst,
-      Function(List<UserItem> _userlist) onSuccess,
-      Function(String error) onFailure) async {
-    if (isfirst) {
-      setLoading(true);
-      userlist.clear();
+    bool isfirst,
+  ) async {
+    var hasinternet = await hasInternetConnection();
+    print("hasinternet=>,${hasinternet}");
+    if (hasinternet) {
+      if (isdataloaded == false) {
+        if (isfirst) {
+          setLoading(true);
+          userlist.clear();
+        }
+        isdataloading = true;
+        List<UserItem> responselist =
+            await _userListUseCase.perform(currentPage, perpage);
+
+        if (responselist.length < perpage) {
+          isdataloaded = true;
+        }
+        userlist.addAll(responselist);
+
+        if (userlist.isNotEmpty) {
+          currentPage = userlist[userlist.length - 1].id!;
+        } else {
+          error = "No Data Found";
+        }
+
+        isdataloading = false;
+
+        // onSuccess(userlist);
+
+        if (isfirst) {
+          setLoading(false);
+        }
+      }
+    } else {
+      error = "Please connect to internet";
     }
-    isdataloading = true;
-    List<UserItem> responselist =
-        await _userListUseCase.perform(currentPage, perpage);
-
-    print("response=>,${responselist.length}");
-
-    if (responselist.length < perpage) {
-      isdataloaded = true;
-    }
-    userlist.addAll(responselist);
-
-    print("responseuser=>,${userlist.length}");
-
-    currentPage = userlist[userlist.length - 1].id!;
-
-    isdataloading = false;
-    onSuccess(userlist);
-
-    if (isfirst) {
-      setLoading(false);
-    }
-
-    Future.delayed(const Duration(milliseconds: 200), () {
-      notifyListeners();
-    });
-
-
+    notifyListeners();
   }
 
   setLoading(bool value) {

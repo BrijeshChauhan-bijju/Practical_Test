@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:testproject/data/entity/user_entity.dart';
-import 'package:testproject/utils/networkmodel/APIHandler.dart';
 import 'package:testproject/utils/networkmodel/APIs.dart';
+import 'package:testproject/utils/networkmodel/api_handler.dart';
 
 class UserRequest {
   ///Sign in user

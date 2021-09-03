@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testproject/presentation/SelectedUserScreen/selecteduserviewmodel.dart';
-import 'package:testproject/utils/AppColors.dart';
+import 'package:testproject/presentation/SelectedUserScreen/selecteduser_viewmodel.dart';
 import 'package:testproject/utils/UniversalClass.dart';
 import 'package:testproject/datasource/local/memory_management.dart';
 
@@ -19,19 +16,12 @@ class SelectedUserScreen extends StatefulWidget {
 class SelectedUserScreenState extends State<SelectedUserScreen> {
   late SelectedUserViewModel provider;
 
-
-  @override
-  void initState() {
-    super.initState();
-    new Future.delayed(Duration(milliseconds: 300)).then((value) {
-      provider.fetchdata();
-    });
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    provider = SelectedUserViewModel(Provider.of(context),Provider.of(context),Provider.of(context));
+    provider = SelectedUserViewModel(
+        Provider.of(context), Provider.of(context), Provider.of(context));
+    provider.fetchdata();
   }
 
   @override
@@ -49,8 +39,8 @@ class SelectedUserScreenState extends State<SelectedUserScreen> {
               ),
               body: provider.isloading
                   ? Center(
-                child: CircularProgressIndicator(),
-              )
+                      child: CircularProgressIndicator(),
+                    )
                   : builduserlist());
         },
       ),
@@ -75,7 +65,8 @@ class SelectedUserScreenState extends State<SelectedUserScreen> {
               Text("Deselect All")
             ],
           ),
-          Expanded(child:Container(
+          Expanded(
+              child: Container(
                   child: ListView.builder(
                       itemCount: provider.userlist.length,
                       shrinkWrap: true,
@@ -83,7 +74,7 @@ class SelectedUserScreenState extends State<SelectedUserScreen> {
                       itemBuilder: (BuildContext context, int index) {
                         return Container(
                           margin:
-                          EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                              EdgeInsets.only(left: 20, right: 20, bottom: 20),
                           width: MediaQuery.of(context).size.width * 0.8,
                           child: Row(
                             children: [

@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testproject/presentation/AllUserScreen/alluserviewmodel.dart';
-import 'package:testproject/presentation/SelectedUserScreen/SelectedUserScreen.dart';
+import 'package:testproject/presentation/AllUserScreen/alluser_viewmodel.dart';
 import 'package:testproject/presentation/model/user_item.dart';
 import 'package:testproject/utils/UniversalClass.dart';
 
@@ -15,11 +14,11 @@ class AllUserListScreen extends StatefulWidget {
 
 class AllUserListScreenState extends State<AllUserListScreen> {
   late AllUserViewModel provider;
-  List<UserItem> _userlistmodel = [];
+
+  // List<UserItem> _userlistmodel = [];
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     provider = AllUserViewModel(
         Provider.of(context), Provider.of(context), Provider.of(context));
@@ -29,7 +28,7 @@ class AllUserListScreenState extends State<AllUserListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("responselis3445543t=>,${_userlistmodel.length}");
+    // print("responselis3445543t=>,${_userlistmodel.length}");
     return ChangeNotifierProvider<AllUserViewModel>(
       create: (_) => provider,
       child: Consumer<AllUserViewModel>(
@@ -39,19 +38,19 @@ class AllUserListScreenState extends State<AllUserListScreen> {
               automaticallyImplyLeading: false,
               title: Text("All Users List"),
             ),
-            body: provider.isloading
+            body: model.isloading
                 ? Center(
                     child: CircularProgressIndicator(),
                   )
-                : builduserlist(),
+                : builduserlist(model),
           );
         },
       ),
     );
   }
 
-  Widget builduserlist() {
-    if (_userlistmodel.isEmpty) {
+  Widget builduserlist(AllUserViewModel model) {
+    if (model.userlist.isEmpty) {
       return Center(
         child: Text(provider.error),
       );
@@ -68,7 +67,7 @@ class AllUserListScreenState extends State<AllUserListScreen> {
           child: Container(
             margin: EdgeInsets.only(top: 20),
             child: ListView.builder(
-                itemCount: _userlistmodel.length,
+                itemCount: model.userlist.length,
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 itemBuilder: (BuildContext context, int index) {
@@ -80,7 +79,7 @@ class AllUserListScreenState extends State<AllUserListScreen> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10000.0),
                           child: getCatchenewtworkImage(
-                            _userlistmodel[index].avatarUrl!,
+                            model.userlist[index].avatarUrl!,
                             40,
                             40,
                           ),
@@ -89,13 +88,13 @@ class AllUserListScreenState extends State<AllUserListScreen> {
                           width: 50,
                         ),
                         new Text(
-                          _userlistmodel[index].login!,
+                          model.userlist[index].login!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Spacer(),
                         Checkbox(
-                            value: _userlistmodel[index].ischecked ?? false,
+                            value: model.userlist[index].ischecked ?? false,
                             onChanged: (onChanged) {
                               provider.setCheckBox(onChanged, index);
                             })
@@ -108,23 +107,6 @@ class AllUserListScreenState extends State<AllUserListScreen> {
   }
 
   void fetchData(bool isfirst) async {
-    var hasinternet = await hasInternetConnection();
-
-    if (hasinternet) {
-      if (provider.isdataloaded == false) {
-        provider.getAllUserList(isfirst, (userlistdata) {
-          _userlistmodel = userlistdata;
-          print("responselist=>,${_userlistmodel.length}");
-        }, (error) {
-          if (error.isNotEmpty)
-            provider.error = error;
-          else
-            provider.error = "No Data Found";
-        });
-      }
-    } else {
-      provider.isloading = false;
-      provider.error = "Please connect to internet";
-    }
+    provider.getAllUserList(isfirst);
   }
 }

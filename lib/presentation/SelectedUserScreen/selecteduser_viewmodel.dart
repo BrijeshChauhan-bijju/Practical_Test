@@ -45,17 +45,19 @@ class SelectedUserViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setcheckbox(bool? onChanged, int index) {
-    userlist[index].ischecked = onChanged;
-
-    _selectedUserCheckBoxUseCase.perform(onChanged, userlist[index]);
+  void setcheckbox(bool? onChanged, int index) async {
+    userlist =
+        await _selectedUserCheckBoxUseCase.perform(onChanged, userlist[index]);
 
     notifyListeners();
   }
 
   void globalcheckboc(bool? onChanged) async {
     _globalcheckflag = onChanged!;
-    if (onChanged == true) userlist = await _globalCheckBoxUseCase.perform();
+    if (onChanged == true) {
+      await _globalCheckBoxUseCase.perform();
+      userlist.clear();
+    }
     notifyListeners();
   }
 

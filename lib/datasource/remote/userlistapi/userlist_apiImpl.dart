@@ -6,7 +6,6 @@ import 'package:testproject/data/entity/user_entity.dart';
 import 'package:testproject/datasource/remote/UserListApi/userlist_api.dart';
 import 'package:testproject/datasource/remote/request/user_request.dart';
 import 'package:testproject/domain/model/user_domain.dart';
-import 'package:testproject/utils/networkmodel/APIHandler.dart';
 import 'package:testproject/utils/networkmodel/APIs.dart';
 import 'package:testproject/utils/networkmodel/api_error.dart';
 
@@ -28,7 +27,6 @@ class UserListApiImpl implements UserListApi {
 
       return responselist.maptoDomainList();
     } else {
-      print("checkresponse=>12345,${response.statusMessage}");
       throw response;
     }
   }
