@@ -1,30 +1,27 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:testproject/data/model/user_list_model.dart';
-import 'package:testproject/data/remote/UserListApi/UserListApiImpl.dart';
-import 'package:testproject/data/remote/repository/UserListRepositoryImpl.dart';
-import 'package:testproject/domain/SetCheckBoxUseCase.dart';
-import 'package:testproject/domain/UpdateListUseCase.dart';
-import 'package:testproject/domain/UserListUseCase.dart';
-import 'package:testproject/datasource/memory_management.dart';
-import 'package:testproject/utils/networkmodel/api_error.dart';
+import 'package:testproject/domain/usecase/SetCheckBoxUseCase.dart';
+import 'package:testproject/domain/usecase/UpdateListUseCase.dart';
+import 'package:testproject/domain/usecase/UserListUseCase.dart';
+import 'package:testproject/presentation/model/user_item.dart';
 
-class AllUserListProvider extends ChangeNotifier {
-  UserListUseCase _userListUseCase =
-      UserListUseCase(UserListRepositoryImpl(UserListApiImpl()));
+class AllUserViewModel extends ChangeNotifier {
+  UserListUseCase _userListUseCase/* =
+      UserListUseCase(UserListRepositoryImpl(UserListApiImpl()))*/;
 
-  SetCheckBoxUseCase _setCheckBoxUseCase =
-      SetCheckBoxUseCase(UserListRepositoryImpl(UserListApiImpl()));
+  SetCheckBoxUseCase _setCheckBoxUseCase/* =
+      SetCheckBoxUseCase(UserListRepositoryImpl(UserListApiImpl()))*/;
 
-  UpdateListUseCase _updateListUseCase =
-      UpdateListUseCase(UserListRepositoryImpl(UserListApiImpl()));
+  UpdateListUseCase _updateListUseCase /*=
+      UpdateListUseCase(UserListRepositoryImpl(UserListApiImpl()))*/;
 
-  List<UserListModel> _userlist = [];
+  AllUserViewModel(this._userListUseCase,this._setCheckBoxUseCase,this._updateListUseCase);
 
-  List<UserListModel> get userlist => _userlist;
 
-  set userlist(List<UserListModel> userlistmodel) {
+  List<UserItem> _userlist = [];
+
+  List<UserItem> get userlist => _userlist;
+
+  set userlist(List<UserItem> userlistmodel) {
     _userlist = userlistmodel;
     notifyListeners();
   }
@@ -85,20 +82,24 @@ class AllUserListProvider extends ChangeNotifier {
 
   void getAllUserList(
       bool isfirst,
-      Function(List<UserListModel> _userlist) onSuccess,
+      Function(List<UserItem> _userlist) onSuccess,
       Function(String error) onFailure) async {
     if (isfirst) {
       setLoading(true);
       userlist.clear();
     }
     isdataloading = true;
-    List<UserListModel> responselist =
+    List<UserItem> responselist =
         await _userListUseCase.perform(currentPage, perpage);
+
+    print("response=>,${responselist.length}");
 
     if (responselist.length < perpage) {
       isdataloaded = true;
     }
     userlist.addAll(responselist);
+
+    print("responseuser=>,${userlist.length}");
 
     currentPage = userlist[userlist.length - 1].id!;
 
@@ -108,7 +109,12 @@ class AllUserListProvider extends ChangeNotifier {
     if (isfirst) {
       setLoading(false);
     }
-    notifyListeners();
+
+    Future.delayed(const Duration(milliseconds: 200), () {
+      notifyListeners();
+    });
+
+
   }
 
   setLoading(bool value) {
@@ -118,14 +124,31 @@ class AllUserListProvider extends ChangeNotifier {
 
   void setCheckBox(bool? onChanged, int index) async {
     userlist[index].ischecked = onChanged;
-    // List<UserListModel> responselist =
-    await _setCheckBoxUseCase.perform(onChanged, userlist, index);
+    await _setCheckBoxUseCase.perform(onChanged, userlist[index]);
     notifyListeners();
   }
 
   void updateCheckList() async {
     print("1=>");
-    _updateListUseCase.perform(userlist);
+    List<UserItem> checkeduserlist = await _updateListUseCase.perform();
+
+    if (checkeduserlist.isNotEmpty) {
+      for (int i = 0; i < userlist.length; i++) {
+        for (int j = 0; j < checkeduserlist.length; j++) {
+          if (userlist[i].id == checkeduserlist[j].id) {
+            userlist[i].ischecked = checkeduserlist[j].ischecked;
+            break;
+          } else {
+            userlist[i].ischecked = false;
+          }
+        }
+      }
+    } else {
+      for (int i = 0; i < userlist.length; i++) {
+        userlist[i].ischecked = false;
+      }
+    }
+
     notifyListeners();
   }
 }

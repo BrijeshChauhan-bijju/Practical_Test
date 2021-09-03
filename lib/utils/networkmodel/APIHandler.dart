@@ -149,6 +149,7 @@ class APIHandler {
         //   message: parseError(e.response!.data.toString()),
         //   status: 403,
         // );
+        print("messag123=> ${e.response}");
         completer.complete(e.response);
       } else {
         // ApiError apiError = new ApiError(

@@ -5,6 +5,10 @@ import 'package:testproject/utils/SharedPrefsKeys.dart';
 class MemoryManagement {
   static late SharedPreferences prefs;
 
+  MemoryManagement() {
+    init();
+  }
+
   static Future<bool> init() async {
     prefs = await SharedPreferences.getInstance();
     return true;

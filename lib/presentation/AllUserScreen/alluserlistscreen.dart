@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testproject/data/model/user_list_model.dart';
-import 'package:testproject/presentation/AllUserScreen/AllUserListProvider.dart';
+import 'package:testproject/presentation/AllUserScreen/alluserviewmodel.dart';
 import 'package:testproject/presentation/SelectedUserScreen/SelectedUserScreen.dart';
+import 'package:testproject/presentation/model/user_item.dart';
 import 'package:testproject/utils/UniversalClass.dart';
 
 class AllUserListScreen extends StatefulWidget {
@@ -14,41 +14,43 @@ class AllUserListScreen extends StatefulWidget {
 }
 
 class AllUserListScreenState extends State<AllUserListScreen> {
-  late AllUserListProvider provider;
-  List<UserListModel> _userlistmodel = [];
-
-  @override
-  void initState() {
-    super.initState();
-    new Future.delayed(Duration(milliseconds: 100)).then((value) {
-      provider.currentPage = 0;
-      fetchData(true);
-    });
-  }
+  late AllUserViewModel provider;
+  List<UserItem> _userlistmodel = [];
 
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    provider = Provider.of<AllUserListProvider>(context);
+    provider = AllUserViewModel(
+        Provider.of(context), Provider.of(context), Provider.of(context));
+    provider.currentPage = 0;
+    fetchData(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text("All Users List"),
+    print("responselis3445543t=>,${_userlistmodel.length}");
+    return ChangeNotifierProvider<AllUserViewModel>(
+      create: (_) => provider,
+      child: Consumer<AllUserViewModel>(
+        builder: (context, model, child) {
+          return Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              title: Text("All Users List"),
+            ),
+            body: provider.isloading
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : builduserlist(),
+          );
+        },
       ),
-      body: provider.isloading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : builduserlist(provider.userlist),
     );
   }
 
-  Widget builduserlist(List<dynamic> userlist) {
+  Widget builduserlist() {
     if (_userlistmodel.isEmpty) {
       return Center(
         child: Text(provider.error),
@@ -112,6 +114,7 @@ class AllUserListScreenState extends State<AllUserListScreen> {
       if (provider.isdataloaded == false) {
         provider.getAllUserList(isfirst, (userlistdata) {
           _userlistmodel = userlistdata;
+          print("responselist=>,${_userlistmodel.length}");
         }, (error) {
           if (error.isNotEmpty)
             provider.error = error;
@@ -119,8 +122,8 @@ class AllUserListScreenState extends State<AllUserListScreen> {
             provider.error = "No Data Found";
         });
       }
-    }else{
-      provider.isloading=false;
+    } else {
+      provider.isloading = false;
       provider.error = "Please connect to internet";
     }
   }
